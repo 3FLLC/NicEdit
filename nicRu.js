@@ -73,7 +73,12 @@ var nicRu = {
 	'Only image files can be uploaded': 'Так загружать можно только картинки',
 	'Image uploads are not supported in this browser, use Chrome, Firefox, or Safari instead.': 'Чтобы загружать картинки, используйте современный браузер - Chrome, Firefox, или Safari.',
 
-	'Edit HTML': 'Править HTML-код'
+	'Edit HTML': 'Править HTML-код',
+
+	'Add Table': 'Вставить таблицу',
+	'Add/Edit Table': 'Таблица',
+	'Columns': 'Колонки',
+	'Rows': 'Строки'
 };
 
 function __(s) {

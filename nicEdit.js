@@ -271,7 +271,7 @@ var nicEditorConfig = bkClass.extend({
 		'hr' : {name : __('Horizontal Rule'), command : 'insertHorizontalRule', noActive : true}
 	},
 	iconsPath : '../nicEditorIcons.gif',
-	buttonList : ['save','bold','italic','underline','strikethrough','left','center','right','justify','ol','ul','fontSize','fontFamily','fontFormat','image','upload','link','unlink','removeformat','forecolor','bgcolor','indent','outdent','subscript','superscript','xhtml'],
+	buttonList : ['save','bold','italic','underline','strikethrough','left','center','right','justify','ol','ul','fontSize','fontFamily','fontFormat','image','upload','link','unlink','removeformat','forecolor','bgcolor','indent','outdent','subscript','superscript','xhtml','table'],
 	iconList : {"xhtml":1,"bgcolor":2,"forecolor":3,"bold":4,"center":5,"hr":6,"indent":7,"italic":8,"justify":9,"left":10,"ol":11,"outdent":12,"removeformat":13,"right":14,"save":25,"strikethrough":16,"subscript":17,"superscript":18,"ul":19,"underline":20,"image":21,"link":22,"unlink":23,"close":24,"arrow":26,"upload":27}
 
 });
@@ -1607,3 +1607,61 @@ var nicCodeButton = nicEditorAdvancedButton.extend({
 });
 
 nicEditors.registerPlugin(nicPlugin,nicCodeOptions);
+
+
+
+/* START CONFIG */
+var nicTableOptions = {
+	buttons : {
+		'table' : {name : __('Add Table'), type : 'nicTableButton', tags : ['TABLE']}
+	}
+
+};
+/* END CONFIG */
+
+var nicTableButton = nicEditorAdvancedButton.extend({
+	addPane : function() {
+		this.t = this.ne.selectedInstance.selElm().parentTag('TABLE');
+		this.addForm({
+			'' : {type : 'title', txt : __('Add/Edit Table')},
+			'cols' : {type : 'text', txt : __('Columns'), 'value' : '3', style : {width: '50px'}},
+			'rows' : {type : 'text', txt : __('Rows'), 'value' : '3', style : {width: '50px'}},
+		},this.t);
+	},
+
+	submit : function(e) {
+		var r = parseInt(this.inputs['rows'].value);
+		var c = parseInt(this.inputs['cols'].value);
+		if(!this.t) {
+			var tmp = 'javascript:nicImTemp();', h = '';
+			for (var i = 0; i < r; i++) {
+				h += '<tr>'+(new Array(c+1)).join('<td>-</td>')+'</tr>';
+			}
+			this.ne.nicCommand("insertHTML", '<table title="'+tmp+'">'+h+'</table>');
+			this.t = this.findElm('TABLE','title',tmp);
+		}
+		if(this.t) {
+			this.t.setAttributes({
+				title: ''
+			});
+			for (var i = r; i < this.t.rows.length; i++) {
+				this.t.deleteRow(r);
+			}
+			for (var i = this.t.rows.length; i < r; i++) {
+				this.t.insertRow(i).innerHTML = (new Array(c+1)).join('<td>-</td>');
+			}
+			if (this.t.rows.length && this.t.rows[0].cells.length != c) {
+				for (var i = 0; i < r; i++) {
+					for (var j = this.t.rows[i].cells.length; j < c; j++) {
+						this.t.rows[i].insertCell(j).innerHTML = '-';
+					}
+					for (var j = this.t.rows[i].cells.length-1; j >= c; j--) {
+						this.t.rows[i].deleteCell(c);
+					}
+				}
+			}
+		}
+	}
+});
+
+nicEditors.registerPlugin(nicPlugin,nicTableOptions);
