@@ -78,7 +78,11 @@ var nicRu = {
 	'Add Table': 'Вставить таблицу',
 	'Add/Edit Table': 'Таблица',
 	'Columns': 'Колонки',
-	'Rows': 'Строки'
+	'Rows': 'Строки',
+	'Headers': 'Заголовок',
+	'None': 'Нет',
+	'Top': 'Сверху',
+	'Top and Left': 'Сверху и слева'
 };
 
 function __(s) {
