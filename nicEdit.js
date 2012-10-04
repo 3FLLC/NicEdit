@@ -479,8 +479,13 @@ var nicEditorInstance = bkClass.extend({
 
 	getRng : function() {
 		var s = this.getSel();
-		if(!s || s.rangeCount === 0) { return; }
-		return (s.rangeCount > 0) ? s.getRangeAt(0) : s.createRange();
+		if (!s) return;
+		if (s.rangeCount > 0) {
+			return s.getRangeAt(0);
+		} else if (typeof s.createRange == 'undefined') {
+			return document.createRange();
+		}
+		return s.createRange();
 	},
 
 	selRng : function(rng,s) {
