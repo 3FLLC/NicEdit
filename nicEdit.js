@@ -530,6 +530,15 @@ var nicEditorInstance = bkClass.extend({
 	},
 
 	keyDown : function(e,t) {
+		if(e.keyCode == 13 || e.keyCode == 10) {
+			if (!e.ctrlKey) {
+				this.ne.nicCommand('insertHTML','<p></p>');
+			} else {
+				this.ne.nicCommand('insertHTML','<br />');
+			}
+			e.preventDefault();
+			return false;
+		}
 		if(e.ctrlKey) {
 			this.ne.fireEvent('key',this,e);
 		}
@@ -1050,7 +1059,7 @@ nicEditors.registerPlugin(nicButtonTips);
 
 
 
- /* START CONFIG */
+/* START CONFIG */
 var nicSelectOptions = {
 	buttons : {
 		'fontSize' : {name : __('Select Font Size'), type : 'nicEditorFontSizeSelect', command : 'fontsize'},
@@ -1654,7 +1663,7 @@ var nicTableButton = nicEditorAdvancedButton.extend({
 			this.t = this.findElm('TABLE','title',tmp);
 		}
 		if(this.t) {
-			this.t.title = '';
+			this.t.remoteAttribute('title');
 			for (i = r; i < this.t.rows.length; i++) {
 				this.t.deleteRow(r);
 			}
