@@ -1707,24 +1707,30 @@ nicEditors.registerPlugin(nicPlugin,nicTableOptions);
 /** nicFloatingPanel */
 
 nicEditor = nicEditor.extend({
-	floatingPanel : function() {
-		this.floating = new bkElement('DIV').setStyle({position: 'absolute', top : '-1000px'}).appendTo(document.body);
+	floatingPanel: function() {
+		this.floating = new bkElement('DIV').setStyle({display: 'inline-block', position: 'absolute', top: '-1000px', zIndex: 100}).appendTo(document.body);
 		this.addEvent('focus', this.reposition.closure(this)).addEvent('blur', this.hide.closure(this));
+		bkLib.addEvent(window, 'scroll', this.reposition.closure(this));
 		this.setPanel(this.floating);
 	},
 
-	reposition : function() {
-		var e = this.selectedInstance.e;
-		this.floating.setStyle({ width : (parseInt(e.getStyle('width')) || e.clientWidth)+'px' });
-		var top = e.offsetTop-this.floating.offsetHeight;
-		if(top < 0) {
-			top = e.offsetTop+e.offsetHeight;
+	reposition: function() {
+		var e = this.selectedInstance;
+		if (!e || !(e = e.e)) return;
+		var h = this.floating.offsetHeight;
+		this.oldMargin = e.style.marginTop;
+		e.style.marginTop = h+'px';
+		var top = e.offsetTop-h;
+		var d = document;
+		d = d.body.scrollTop || d.documentElement.scrollTop;
+		if(top < d) {
+			top = d;
 		}
-
-		this.floating.setStyle({ top : top+'px', left : e.offsetLeft+'px', display : 'block' });
+		this.floating.setStyle({ top: top+'px', left: e.offsetLeft+'px' });
 	},
 
-	hide : function() {
-		this.floating.setStyle({ top : '-1000px'});
+	hide: function() {
+		this.floating.setStyle({ top: '-1000px' });
+		this.selectedInstance.e.style.marginTop = this.oldMargin;
 	}
 });
