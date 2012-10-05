@@ -881,8 +881,7 @@ var nicPlugin = bkClass.extend({
 	init : function() {  }
 });
 
-
-
+/** nicPane */
 
 /* START CONFIG */
 var nicPaneOptions = { };
@@ -942,7 +941,7 @@ var nicEditorPane = bkClass.extend({
 
 });
 
-
+/** nicAdvancedButton */
 
 var nicEditorAdvancedButton = nicEditorButton.extend({
 
@@ -1026,6 +1025,7 @@ var nicEditorAdvancedButton = nicEditorButton.extend({
 	}
 });
 
+/** nicButtonTips */
 
 var nicButtonTips = bkClass.extend({
 	construct : function(nicEditor) {
@@ -1057,7 +1057,7 @@ var nicButtonTips = bkClass.extend({
 });
 nicEditors.registerPlugin(nicButtonTips);
 
-
+/** nicSelect */
 
 /* START CONFIG */
 var nicSelectOptions = {
@@ -1192,7 +1192,7 @@ var nicEditorFontFormatSelect = nicEditorSelect.extend({
 
 nicEditors.registerPlugin(nicPlugin,nicSelectOptions);
 
-
+/** nicLink */
 
 /* START CONFIG */
 var nicLinkOptions = {
@@ -1239,7 +1239,7 @@ var nicLinkButton = nicEditorAdvancedButton.extend({
 
 nicEditors.registerPlugin(nicPlugin,nicLinkOptions);
 
-
+/** nicColors */
 
 /* START CONFIG */
 var nicColorOptions = {
@@ -1297,7 +1297,7 @@ var nicEditorBgColorButton = nicEditorColorButton.extend({
 
 nicEditors.registerPlugin(nicPlugin,nicColorOptions);
 
-
+/** nicImage */
 
 /* START CONFIG */
 var nicImageOptions = {
@@ -1345,7 +1345,7 @@ var nicImageButton = nicEditorAdvancedButton.extend({
 
 nicEditors.registerPlugin(nicPlugin,nicImageOptions);
 
-
+/** nicUpload */
 
 /* START CONFIG */
 var nicUploadOptions = {
@@ -1452,7 +1452,7 @@ var nicUploadButton = nicEditorAdvancedButton.extend({
 
 nicEditors.registerPlugin(nicPlugin,nicUploadOptions);
 
-
+/** nicXHTML */
 
 var nicXHTML = bkClass.extend({
 	stripAttributes : ['_moz_dirty','_moz_resizing','_extended'],
@@ -1592,7 +1592,7 @@ var nicXHTML = bkClass.extend({
 });
 nicEditors.registerPlugin(nicXHTML);
 
-
+/** nicCode */
 
 /* START CONFIG */
 var nicCodeOptions = {
@@ -1622,7 +1622,7 @@ var nicCodeButton = nicEditorAdvancedButton.extend({
 
 nicEditors.registerPlugin(nicPlugin,nicCodeOptions);
 
-
+/** nicTable (c) Vitaliy Filippov */
 
 /* START CONFIG */
 var nicTableOptions = {
@@ -1703,3 +1703,28 @@ var nicTableButton = nicEditorAdvancedButton.extend({
 });
 
 nicEditors.registerPlugin(nicPlugin,nicTableOptions);
+
+/** nicFloatingPanel */
+
+nicEditor = nicEditor.extend({
+	floatingPanel : function() {
+		this.floating = new bkElement('DIV').setStyle({position: 'absolute', top : '-1000px'}).appendTo(document.body);
+		this.addEvent('focus', this.reposition.closure(this)).addEvent('blur', this.hide.closure(this));
+		this.setPanel(this.floating);
+	},
+
+	reposition : function() {
+		var e = this.selectedInstance.e;
+		this.floating.setStyle({ width : (parseInt(e.getStyle('width')) || e.clientWidth)+'px' });
+		var top = e.offsetTop-this.floating.offsetHeight;
+		if(top < 0) {
+			top = e.offsetTop+e.offsetHeight;
+		}
+
+		this.floating.setStyle({ top : top+'px', left : e.offsetLeft+'px', display : 'block' });
+	},
+
+	hide : function() {
+		this.floating.setStyle({ top : '-1000px'});
+	}
+});
