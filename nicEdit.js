@@ -1663,7 +1663,7 @@ var nicTableButton = nicEditorAdvancedButton.extend({
 			this.t = this.findElm('TABLE','title',tmp);
 		}
 		if(this.t) {
-			this.t.remoteAttribute('title');
+			this.t.removeAttribute('title');
 			for (i = r; i < this.t.rows.length; i++) {
 				this.t.deleteRow(r);
 			}
@@ -1718,7 +1718,7 @@ nicEditor = nicEditor.extend({
 		var e = this.selectedInstance;
 		if (!e || !(e = e.e)) return;
 		var h = this.floating.offsetHeight;
-		this.oldMargin = e.style.marginTop;
+		if (this.oldMargin === undefined) this.oldMargin = e.style.marginTop||'';
 		e.style.marginTop = h+'px';
 		var top = e.offsetTop-h;
 		var d = document;
@@ -1731,6 +1731,7 @@ nicEditor = nicEditor.extend({
 
 	hide: function() {
 		this.floating.setStyle({ top: '-1000px' });
-		this.selectedInstance.e.style.marginTop = this.oldMargin;
+		if (this.selectedInstance) this.selectedInstance.e.style.marginTop = this.oldMargin;
+		this.oldMargin = null;
 	}
 });
