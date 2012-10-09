@@ -48,6 +48,11 @@ var bkElement = bkClass.extend({
 		return this;
 	},
 
+	removeAllEvents : function() {
+		bkLib.removeAllEvents(this);
+		return this;
+	},
+
 	setContent : function(c) {
 		this.innerHTML = c;
 		return this;
@@ -144,7 +149,21 @@ var bkLib = {
 	isMSIE : (navigator.appVersion.indexOf("MSIE") != -1),
 
 	addEvent : function(obj, type, fn) {
+		obj._bkE = obj._bkE||[];
+		obj._bkE.push([type, fn]);
 		(obj.addEventListener) ? obj.addEventListener( type, fn, false ) : obj.attachEvent("on"+type, fn);
+	},
+
+	removeEvent : function(obj, type, fn) {
+		(obj.removeEventListener) ? obj.removeEventListener( type, fn, false ) : obj.detachEvent("on"+type, fn);
+	},
+
+	removeAllEvents : function(obj) {
+		if (!obj._bkE) return;
+		for (var i = 0; i < obj._bkE.length; i++) {
+			bkLib.removeEvent(obj,obj._bkE[i][0],obj._bkE[i][1]);
+		}
+		obj._bkE = [];
 	},
 
 	toArray : function(iterable) {
@@ -465,6 +484,7 @@ var nicEditorInstance = bkClass.extend({
 			this.e.setStyle({'display' : 'block'});
 			this.ne.removePanel();
 		}
+		this.elm.removeAllEvents();
 		this.disable();
 		this.ne.fireEvent('remove',this);
 	},
