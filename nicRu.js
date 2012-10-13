@@ -52,7 +52,7 @@ var nicRu = {
 	'Add Link': 'Вставить ссылку',
 	'Remove Link': 'Убрать ссылку',
 	'Add/Edit Link': 'Ссылка',
-	'Hint': 'Хинт',
+	'Hint': 'Подсказка',
 	'Open In': 'Открыть',
 	'Current Window': 'В этом окне',
 	'New Window': 'В новом окне',
@@ -67,6 +67,12 @@ var nicRu = {
 	'Right': 'Справа',
 	'Insert an Image': 'Вставить картинку',
 	'You must enter a Image URL to insert': 'Чтобы вставить картинку, введите её URL',
+
+	'URL or Name': 'URL или имя',
+	'Hyperlink': 'Ссылка',
+	'Open in new window': 'Открывать в новом окне',
+	'Max Size': 'Макс. размер',
+	'To insert an image you must select uploaded file ID or enter the image URL!': 'Чтобы вставить картинку, либо выберите её из выпадающего списка (работают подсказки по названию), либо введите её прямой URL!',
 
 	'Upload Image': 'Загрузить картинку',
 	'Failed to upload image': 'Ошибка загрузки картинки',

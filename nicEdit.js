@@ -336,7 +336,7 @@ var nicEditor = bkClass.extend({
 			this.loadedPlugins.push(new plugins[i].p(this,plugins[i].o));
 		}
 		nicEditors.editors.push(this);
-		bkLib.addEvent(document.body,'mousedown', this.selectCheck.closureListener(this) );
+		bkLib.addEvent(document.body, 'mousedown', this.selectCheck.closureListener(this));
 	},
 
 	panelInstance : function(e,o) {
@@ -913,11 +913,11 @@ var nicEditorPane = bkClass.extend({
 		this.elm = elm;
 		this.pos = elm.pos();
 
-		this.contain = new bkElement('div').setStyle({zIndex : '99999', overflow : 'hidden', position : 'absolute', left : this.pos[0]+'px', top : this.pos[1]+'px'})
-		this.pane = new bkElement('div').setStyle({fontSize : '12px', border : '1px solid #ccc', 'overflow': 'hidden', padding : '4px', textAlign: 'left', backgroundColor : '#ffffc9'}).addClass('pane').setStyle(options).appendTo(this.contain);
+		this.contain = new bkElement('div').setStyle({zIndex: '999', overflow: 'hidden', position: 'absolute', left: this.pos[0]+'px', top : this.pos[1]+'px'})
+		this.pane = new bkElement('div').setStyle({fontSize: '12px', border: '1px solid #ccc', overflow: 'hidden', padding: '4px', textAlign: 'left', backgroundColor : '#ffffc9'}).addClass('pane').setStyle(options).appendTo(this.contain);
 
 		if(openButton && !openButton.options.noClose) {
-			this.close = new bkElement('div').setStyle({'float' : 'right', height: '16px', width : '16px', cursor : 'pointer'}).setStyle(this.ne.getIcon('close',nicPaneOptions)).addEvent('mousedown',openButton.removePane.closure(this)).appendTo(this.pane);
+			this.close = new bkElement('div').setStyle({float: 'right', height: '16px', width: '16px', cursor: 'pointer'}).setStyle(this.ne.getIcon('close',nicPaneOptions)).addEvent('mousedown',openButton.removePane.closure(this)).appendTo(this.pane);
 		}
 
 		this.contain.noSelect().appendTo(document.body);
@@ -982,9 +982,23 @@ var nicEditorAdvancedButton = nicEditorButton.extend({
 	},
 
 	addForm : function(f,elm) {
-		this.form = new bkElement('form').addEvent('submit',this.submit.closureListener(this));
+		this.form = new bkElement('form').setAttributes({className: 'niceabf'}).addEvent('submit',this.submit.closureListener(this));
 		this.pane.append(this.form);
 		this.inputs = {};
+		if (!document._nicCss) {
+			document._nicCss = document.createElement('style');
+			document._nicCss.appendChild(document.createTextNode(
+				'.niceabf table { border-collapse: collapse; }\n'+
+				'.niceabf td { padding: 2px 5px 2px 0; }\n'+
+				'.niceabf td.h { vertical-align: top; padding-top: 4px; }\n'+
+				'.niceabf h2 { font-size: 14px; font-weight: bold; padding: 0; margin: 0; }\n'+
+				'.niceabf input, .niceabf select { vertical-align: middle; font-size: 13px; border: 1px solid #ccc; }\n'+
+				'.niceabf textarea { border: 1px solid #ccc; }\n'+
+				'.niceabf input.button { background-color: #efefef; margin: 3px 0; }\n'
+			));
+			document.getElementsByTagName('head')[0].appendChild(document._nicCss);
+		}
+		var tab, tr, td;
 
 		for(itm in f) {
 			var field = f[itm];
@@ -998,30 +1012,42 @@ var nicEditorAdvancedButton = nicEditorButton.extend({
 			var type = f[itm].type;
 
 			if(type == 'title') {
-					new bkElement('div').setContent(field.txt).setStyle({fontSize : '14px', fontWeight: 'bold', padding : '0px', margin : '2px 0'}).appendTo(this.form);
+				new bkElement('h2').setContent(field.txt).appendTo(this.form);
 			} else {
-				var contain = new bkElement('div').setStyle({overflow : 'hidden', clear : 'both'}).appendTo(this.form);
+				if (!tab) {
+					tab = new bkElement('table').appendTo(this.form);
+				}
+				tr = new bkElement('tr').appendTo(tab);
 				if(field.txt) {
-					new bkElement('label').setAttributes({'for' : itm}).setContent(field.txt).setStyle({margin : '2px 4px', fontSize : '13px', width: '50px', lineHeight : '20px', textAlign : 'right', 'float' : 'left'}).appendTo(contain);
+					td = new bkElement('td').setAttributes({className: 'h'}).appendTo(tr);
+					new bkElement('label').setAttributes({htmlFor: itm}).setContent(field.txt).appendTo(td);
+				}
+				td = new bkElement('td').appendTo(tr);
+				if(!field.txt) {
+					td.setAttributes({colspan: 2});
 				}
 
 				switch(type) {
 					case 'text':
-						this.inputs[itm] = new bkElement('input').setAttributes({id : itm, 'value' : val, 'type' : 'text'}).setStyle({margin : '2px 0', fontSize : '13px', 'float' : 'left', height : '20px', border : '1px solid #ccc', overflow : 'hidden'}).setStyle(field.style).appendTo(contain);
+						this.inputs[itm] = new bkElement('input').setAttributes({id: itm, value: val, type: 'text'}).setStyle(field.style).appendTo(td);
 						break;
 					case 'select':
-						this.inputs[itm] = new bkElement('select').setAttributes({id : itm}).setStyle({border : '1px solid #ccc', 'float' : 'left', margin : '2px 0'}).appendTo(contain);
+						this.inputs[itm] = new bkElement('select').setAttributes({id: itm}).appendTo(td);
 						for(opt in field.options) {
-							var o = new bkElement('option').setAttributes({value : opt, selected : (opt == val) ? 'selected' : ''}).setContent(field.options[opt]).appendTo(this.inputs[itm]);
+							var o = new bkElement('option').setAttributes({value: opt, selected: (opt == val) ? 'selected' : ''}).setContent(field.options[opt]).appendTo(this.inputs[itm]);
 						}
 						break;
 					case 'content':
-						this.inputs[itm] = new bkElement('textarea').setAttributes({id : itm}).setStyle({border : '1px solid #ccc', 'float' : 'left'}).setStyle(field.style).appendTo(contain);
+						this.inputs[itm] = new bkElement('textarea').setAttributes({id: itm}).setStyle(field.style).appendTo(td);
 						this.inputs[itm].value = val;
+						break;
+					case 'container':
+						this.inputs[itm] = td;
+						break;
 				}
 			}
 		}
-		new bkElement('input').setAttributes({'type': 'submit', 'value': __('Submit')}).setStyle({backgroundColor : '#efefef',border : '1px solid #ccc', margin : '3px 0', 'float' : 'left', 'clear' : 'both'}).appendTo(this.form);
+		new bkElement('input').setAttributes({type: 'submit', value: __('Submit'), className: 'button'}).appendTo(this.form);
 		this.form.onsubmit = bkLib.cancelEvent;
 	},
 
@@ -1316,161 +1342,6 @@ var nicEditorBgColorButton = nicEditorColorButton.extend({
 });
 
 nicEditors.registerPlugin(nicPlugin,nicColorOptions);
-
-/** nicImage */
-
-/* START CONFIG */
-var nicImageOptions = {
-	buttons : {
-		'image' : {name : __('Add Image'), type : 'nicImageButton', tags : ['IMG']}
-	}
-
-};
-/* END CONFIG */
-
-var nicImageButton = nicEditorAdvancedButton.extend({
-	addPane : function() {
-		this.im = this.ne.selectedInstance.selElm().parentTag('IMG');
-		this.addForm({
-			'' : {type : 'title', txt : __('Add/Edit Image')},
-			'src' : {type : 'text', txt : 'URL', 'value' : 'http://', style : {width: '150px'}},
-			'alt' : {type : 'text', txt : __('Alt Text'), style : {width: '100px'}},
-			'align' : {type : 'select', txt : __('Align'), options : {none : __('Inline'),'left' : __('Left'), 'right' : __('Right')}}
-		},this.im);
-	},
-
-	submit : function(e) {
-		var src = this.inputs['src'].value;
-		if(src == "" || src == "http://") {
-			alert(__("You must enter a Image URL to insert"));
-			return false;
-		}
-		this.removePane();
-
-		if(!this.im) {
-			var tmp = 'javascript:nicImTemp();';
-			this.ne.nicCommand("insertImage",tmp);
-			this.im = this.findElm('IMG','src',tmp);
-		}
-		if(this.im) {
-			this.im.setAttributes({
-				src : this.inputs['src'].value,
-				alt : this.inputs['alt'].value,
-				title : this.inputs['alt'].value,
-				align : this.inputs['align'].value
-			});
-		}
-	}
-});
-
-nicEditors.registerPlugin(nicPlugin,nicImageOptions);
-
-/** nicUpload */
-
-/* START CONFIG */
-var nicUploadOptions = {
-	buttons : {
-		'upload' : {name : __('Upload Image'), type : 'nicUploadButton'}
-	}
-
-};
-/* END CONFIG */
-
-var nicUploadButton = nicEditorAdvancedButton.extend({
-	nicURI : 'http://api.imgur.com/2/upload.json',
-	errorText : __('Failed to upload image'),
-
-	addPane : function() {
-		if(typeof window.FormData === "undefined") {
-			return this.onError(__("Image uploads are not supported in this browser, use Chrome, Firefox, or Safari instead."));
-		}
-		this.im = this.ne.selectedInstance.selElm().parentTag('IMG');
-
-		var container = new bkElement('div')
-			.setStyle({ padding: '10px' })
-			.appendTo(this.pane.pane);
-
-		new bkElement('div')
-			.setStyle({ fontSize: '14px', fontWeight : 'bold', paddingBottom: '5px' })
-			.setContent(__('Insert an Image'))
-			.appendTo(container);
-
-		this.fileInput = new bkElement('input')
-			.setAttributes({ 'type' : 'file' })
-			.appendTo(container);
-
-		this.progress = new bkElement('progress')
-			.setStyle({ width : '100%', display: 'none' })
-			.setAttributes('max', 100)
-			.appendTo(container);
-
-		this.fileInput.onchange = this.uploadFile.closure(this);
-	},
-
-	onError : function(msg) {
-		this.removePane();
-		alert(msg || __("Failed to upload image"));
-	},
-
-	uploadFile : function() {
-		var file = this.fileInput.files[0];
-		if (!file || !file.type.match(/image.*/)) {
-			this.onError(__("Only image files can be uploaded"));
-			return;
-		}
-		this.fileInput.setStyle({ display: 'none' });
-		this.setProgress(0);
-
-		var fd = new FormData(); // https://hacks.mozilla.org/2011/01/how-to-develop-a-html5-image-uploader/
-		fd.append("image", file);
-		fd.append("key", "b7ea18a4ecbda8e92203fa4968d10660");
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", this.ne.options.uploadURI || this.nicURI);
-
-		xhr.onload = function() {
-			try {
-				var res = JSON.parse(xhr.responseText);
-			} catch(e) {
-				return this.onError();
-			}
-			this.onUploaded(res.upload);
-		}.closure(this);
-		xhr.onerror = this.onError.closure(this);
-		xhr.upload.onprogress = function(e) {
-			this.setProgress(e.loaded / e.total);
-		}.closure(this);
-		xhr.send(fd);
-	},
-
-	setProgress : function(percent) {
-		this.progress.setStyle({ display: 'block' });
-		if(percent < .98) {
-			this.progress.value = percent;
-		} else {
-			this.progress.removeAttribute('value');
-		}
-	},
-
-	onUploaded : function(options) {
-		this.removePane();
-		var src = options.links.original;
-		if(!this.im) {
-			this.ne.selectedInstance.restoreRng();
-			var tmp = 'javascript:nicImTemp();';
-			this.ne.nicCommand("insertImage", src);
-			this.im = this.findElm('IMG','src', src);
-		}
-		var w = parseInt(this.ne.selectedInstance.elm.getStyle('width'));
-		if(this.im) {
-			this.im.setAttributes({
-				src : src,
-				width : (w && options.image.width) ? Math.min(w, options.image.width) : ''
-			});
-		}
-	}
-});
-
-nicEditors.registerPlugin(nicPlugin,nicUploadOptions);
 
 /** nicXHTML */
 
