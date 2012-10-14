@@ -804,7 +804,7 @@ var nicEditorButton = bkClass.extend({
 				this.activate();
 				return true;
 			}
-		} while(elm = elm.parentNode && elm.className != "nicEdit");
+		} while((elm = elm.parentNode) && elm.className != "nicEdit");
 		elm = $BK(e);
 		while(elm.nodeType == 3) {
 			elm = $BK(elm.parentNode);
@@ -1563,7 +1563,7 @@ var nicTableButton = nicEditorAdvancedButton.extend({
 		}
 		if(this.t) {
 			this.t.removeAttribute('title');
-			for (i = r; i < this.t.rows.length; i++) {
+			for (i = this.t.rows.length-1; i >= r; i--) {
 				this.t.deleteRow(r);
 			}
 			for (i = this.t.rows.length; i < r; i++) {
@@ -1587,7 +1587,7 @@ var nicTableButton = nicEditorAdvancedButton.extend({
 					node.parentNode.insertBefore(nn, node);
 					node.parentNode.removeChild(node);
 				};
-				repl(this.t.rows[0].cells[0], ht != 'none');
+				repl(this.t.rows[0].cells[0], ht != '');
 				j = ht == 'top' || ht == 'topleft';
 				for (i = 1; i < c; i++) {
 					repl(this.t.rows[0].cells[i], j);
