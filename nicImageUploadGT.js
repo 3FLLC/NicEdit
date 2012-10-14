@@ -1,22 +1,23 @@
-/** nicImageGT */
+/** nicImageUploadGT (Image+Upload) */
 
 /* START CONFIG */
-var nicImageOptions = {
+var nicImageUploadGTOptions = {
 	buttons: {
-		'image': {name: __('Add Image'), type: 'nicImageButton', tags: ['IMG']}
+		'image': {name: __('Add Image'), type: 'nicImageUploadGTButton', tags: ['IMG']}
 	}
 
 };
 /* END CONFIG */
 
-var nicImageButton = nicEditorAdvancedButton.extend({
+var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 	addPane: function() {
-		this.im = this.ne.selectedInstance.selElm().parentTag('IMG');
-		var params = this.parseParams(this.im);
+		this.im = (this.selElm || this.ne.selectedInstance.selElm()).parentTag('IMG');
+		var s, params = this.parseParams(this.im);
 
 		this.addForm({
 			'': {type: 'title', txt: __('Add/Edit Image')},
 			'src': {type: 'text', txt: __('URL or Name'), style: {width: '150px'}},
+			'upload': {type: 'container', txt: __('Or upload')},
 			'href': {type: 'text', txt: __('Hyperlink'), style: {width: '150px'}},
 			'size': {type: 'container', txt: __('Max Size')},
 			'align': {type: 'select', txt: __('Align'), options: {none: __('Inline'), left: __('Left'), right: __('Right')}},
@@ -24,15 +25,38 @@ var nicImageButton = nicEditorAdvancedButton.extend({
 
 		this.hinter = new SimpleAutocomplete(this.inputs['src'], this.gtLoadData.closure(this), null, null, null, false, true);
 
-		var s = this.inputs['href'].parentNode;
+		s = this.inputs['href'].parentNode;
 		new bkElement('br').appendTo(s);
 		this.inputs['newwindow'] = new bkElement('input').setAttributes({type: 'checkbox', id: 'newwindow', checked: 1 && params.newwindow}).appendTo(s);
 		new bkElement('label').setAttributes({htmlFor: 'newwindow'}).setContent(__('Open in new window')).appendTo(s);
+
+		var self = this;
+		s = this.inputs['upload'];
+		this.inputs['fileName'] = new bkElement('input').setStyle({width: '150px', height: '20px'}).setAttributes({type: 'button', value: __('Select file')}).appendTo(s);
+		this.inputs['fileName'].addEvent('click', function() { self.inputs['file'].click(); });
+		this.inputs['file'] = new bkElement('input').setStyle({width: '150px', display: 'none'}).setAttributes({type: 'file', size: 5}).appendTo(s);
+		this.inputs['file'].addEvent('change', this.onFileChange.closure(this));
+		new bkElement('br').appendTo(s);
+		this.inputs['progress'] = new bkElement('progress')
+			.setStyle({ width: '100%', display: 'none' })
+			.setAttributes('max', 100)
+			.appendTo(s);
 
 		s = this.inputs['size'];
 		this.inputs['width'] = new bkElement('input').setAttributes({type: 'text', size: 5, value: params.width||''}).appendTo(s);
 		s.appendChild(document.createTextNode(' x '));
 		this.inputs['height'] = new bkElement('input').setAttributes({type: 'text', size: 5, value: params.height||''}).appendTo(s);
+	},
+
+	onFileChange: function() {
+		this.inputs['src'].value = '';
+		this.inputs['fileName'].value = this.inputs['file'].files[0].name;
+	},
+
+	checkNodes: function(e) {
+		var r = nicEditorAdvancedButton.prototype.checkNodes.apply(this, [e]);
+		this.selElm = r ? e : null;
+		return r;
 	},
 
 	parseParams: function(elm) {
@@ -82,6 +106,11 @@ var nicImageButton = nicEditorAdvancedButton.extend({
 	},
 
 	submit: function(e) {
+		if (!this.inputs['src'].value && this.inputs['file'].files[0]) {
+			// Upload the file, then continue from a callback
+			this.uploadFile();
+			return false;
+		}
 		var src = this.inputs['src'].value;
 		var gtId = /^#(\d+)(\s*-\s*)?(.*)/.exec(src);
 		var alt = '';
@@ -130,113 +159,54 @@ var nicImageButton = nicEditorAdvancedButton.extend({
 				align: this.inputs['align'].value
 			});
 		}
-	}
-});
-
-nicEditors.registerPlugin(nicPlugin,nicImageOptions);
-
-/** nicUploadGT */
-
-/* START CONFIG */
-var nicUploadOptions = {
-	buttons: {
-		'upload': {name: __('Upload Image'), type: 'nicUploadButton'}
-	}
-
-};
-/* END CONFIG */
-
-var nicUploadButton = nicEditorAdvancedButton.extend({
-	errorText: __('Failed to upload image'),
-
-	addPane: function() {
-		if(typeof window.FormData === "undefined") {
-			return this.onError(__("Image uploads are not supported in this browser, use Chrome, Firefox, or Safari instead."));
-		}
-		this.im = this.ne.selectedInstance.selElm().parentTag('IMG');
-
-		var container = new bkElement('div')
-			.setStyle({ padding: '10px' })
-			.appendTo(this.pane.pane);
-
-		new bkElement('div')
-			.setStyle({ fontSize: '14px', fontWeight: 'bold', paddingBottom: '5px' })
-			.setContent(__('Insert an Image'))
-			.appendTo(container);
-
-		this.fileInput = new bkElement('input')
-			.setAttributes({ type: 'file' })
-			.appendTo(container);
-
-		this.progress = new bkElement('progress')
-			.setStyle({ width: '100%', display: 'none' })
-			.setAttributes('max', 100)
-			.appendTo(container);
-
-		this.fileInput.onchange = this.uploadFile.closure(this);
-	},
-
-	onError: function(msg) {
-		this.removePane();
-		alert(msg || __("Failed to upload image"));
 	},
 
 	uploadFile: function() {
-		var file = this.fileInput.files[0];
+		var file = this.inputs['file'].files[0];
 		if (!file || !file.type.match(/image.*/)) {
-			this.onError(__("Only image files can be uploaded"));
+			alert(__("Only image files can be uploaded"));
 			return;
 		}
-		this.fileInput.setStyle({ display: 'none' });
+		this.inputs['file'].setStyle({display: 'none'});
 		this.setProgress(0);
 
 		var fd = new FormData(); // https://hacks.mozilla.org/2011/01/how-to-develop-a-html5-image-uploader/
-		fd.append("image", file);
-		fd.append("key", "b7ea18a4ecbda8e92203fa4968d10660");
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", this.ne.options.uploadURI || this.nicURI);
+		fd.append("e_file", file);
+		fd.append("e_title", file.name);
 
+		var self = this;
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", GT.domain+'/file.php?action=save&format=json');
 		xhr.onload = function() {
-			try {
-				var res = JSON.parse(xhr.responseText);
-			} catch(e) {
-				return this.onError();
+			try { var res = JSON.parse(xhr.responseText); } catch(e) {}
+			if (res && (res.file || res.duplicate)) {
+				self.onUploaded(res);
+			} else {
+				alert(__('Error uploading file') + (res && res.error ? ': '+res.error : ''));
 			}
-			this.onUploaded(res.upload);
-		}.closure(this);
-		xhr.onerror = this.onError.closure(this);
+		};
+		xhr.onerror = function(e) { alert(__('Error uploading file')+': '+e); };
 		xhr.upload.onprogress = function(e) {
-			this.setProgress(e.loaded / e.total);
-		}.closure(this);
+			self.setProgress(e.loaded / e.total);
+		};
 		xhr.send(fd);
 	},
 
-	setProgress: function(percent) {
-		this.progress.setStyle({ display: 'block' });
-		if(percent < .98) {
-			this.progress.value = percent;
-		} else {
-			this.progress.removeAttribute('value');
-		}
+	onUploaded: function(r) {
+		var f = r.file||r.duplicate;
+		this.inputs['src'].value = '#'+f.id+' - '+f.title;
+		this.submit();
 	},
 
-	onUploaded: function(options) {
-		this.removePane();
-		var src = options.links.original;
-		if(!this.im) {
-			this.ne.selectedInstance.restoreRng();
-			var tmp = 'javascript:nicImTemp();';
-			this.ne.nicCommand("insertImage", src);
-			this.im = this.findElm('IMG','src', src);
+	setProgress: function(percent) {
+		var p = this.inputs['progress'];
+		p.setStyle({display: 'block'});
+		if(percent < .98) {
+			p.value = percent;
+		} else {
+			p.removeAttribute('value');
 		}
-		var w = parseInt(this.ne.selectedInstance.elm.getStyle('width'));
-		if(this.im) {
-			this.im.setAttributes({
-				src: src,
-				width: (w && options.image.width) ? Math.min(w, options.image.width) : ''
-			});
-		}
-	}
+	},
 });
 
-nicEditors.registerPlugin(nicPlugin,nicUploadOptions);
+nicEditors.registerPlugin(nicPlugin,nicImageUploadGTOptions);

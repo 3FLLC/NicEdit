@@ -538,6 +538,18 @@ var nicEditorInstance = bkClass.extend({
 		}
 	},
 
+	selBlockType : function() {
+		var e = this.selElm();
+		var t = {'P':1,'PRE':1,'H1':1,'H2':1,'H3':1,'H4':1,'H5':1,'H6':1};
+		while (e != this.elm) {
+			if (t[e.nodeName]) {
+				return e.nodeName;
+			}
+			e = e.parentNode;
+		}
+		return false;
+	},
+
 	saveRng : function() {
 		this.savedRange = this.getRng();
 		this.savedSel = this.getSel();
@@ -551,13 +563,9 @@ var nicEditorInstance = bkClass.extend({
 
 	keyDown : function(e,t) {
 		if(e.keyCode == 13 || e.keyCode == 10) {
-			if (!e.ctrlKey) {
-				this.ne.nicCommand('insertHTML','<p></p>');
-			} else {
-				this.ne.nicCommand('insertHTML','<br />');
+			if (!e.shiftKey && !this.selBlockType()) {
+				this.ne.nicCommand('formatBlock', 'p');
 			}
-			e.preventDefault();
-			return false;
 		}
 		if(e.ctrlKey) {
 			this.ne.fireEvent('key',this,e);
@@ -990,7 +998,7 @@ var nicEditorAdvancedButton = nicEditorButton.extend({
 			document._nicCss.appendChild(document.createTextNode(
 				'.niceabf table { border-collapse: collapse; }\n'+
 				'.niceabf td { padding: 2px 5px 2px 0; }\n'+
-				'.niceabf td.h { vertical-align: top; padding-top: 4px; }\n'+
+				'.niceabf td.h { vertical-align: top; padding-top: 4px; white-space: nowrap; }\n'+
 				'.niceabf h2 { font-size: 14px; font-weight: bold; padding: 0; margin: 0; }\n'+
 				'.niceabf input, .niceabf select { vertical-align: middle; font-size: 13px; border: 1px solid #ccc; }\n'+
 				'.niceabf textarea { border: 1px solid #ccc; }\n'+

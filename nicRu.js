@@ -73,6 +73,8 @@ var nicRu = {
 	'Open in new window': 'Открывать в новом окне',
 	'Max Size': 'Макс. размер',
 	'To insert an image you must select uploaded file ID or enter the image URL!': 'Чтобы вставить картинку, либо выберите её из выпадающего списка (работают подсказки по названию), либо введите её прямой URL!',
+	'Or upload': 'Или загрузить',
+	'Select file': 'Выбрать файл',
 
 	'Upload Image': 'Загрузить картинку',
 	'Failed to upload image': 'Ошибка загрузки картинки',
