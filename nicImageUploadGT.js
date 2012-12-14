@@ -1,4 +1,4 @@
-/** nicImageUploadGT (Image+Upload) */
+/** nicImageUploadGT (Image + Upload + Lightbox support) */
 
 /* START CONFIG */
 var nicImageUploadGTOptions = {
@@ -21,6 +21,7 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			'href': {type: 'text', txt: __('Hyperlink'), style: {width: '150px'}},
 			'size': {type: 'container', txt: __('Max Size')},
 			'align': {type: 'select', txt: __('Align'), options: {none: __('Inline'), left: __('Left'), right: __('Right')}},
+			'alt': {type: 'text', txt: __('Popup text'), style: {width: '150px'}}
 		}, params);
 
 		this.hinter = new SimpleAutocomplete(this.inputs['src'], this.gtLoadData.closure(this), null, null, null, false, true);
@@ -64,9 +65,14 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 		if (!elm) return r;
 		if (elm.parentNode.nodeName == 'A') {
 			r.href = elm.parentNode.href;
+			if (r.href.substr(0, GT.domain.length+10) == GT.domain+'/file.php?') {
+				r.href = '';
+			}
 			if (elm.parentNode.target == '_blank') {
 				r.newwindow = true;
 			}
+		} else {
+			r.href = '-';
 		}
 		r.align = elm.align;
 		if (elm.src.substr(0, GT.domain.length+10) == GT.domain+'/file.php?') {
@@ -87,6 +93,7 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			r.width = elm.style.maxWidth.replace('px', '');
 			r.height = elm.style.maxHeight.replace('px', '');
 		}
+		r.alt = elm.alt;
 		return r;
 	},
 
@@ -113,14 +120,16 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 		}
 		var src = this.inputs['src'].value;
 		var gtId = /^#(\d+)(\s*-\s*)?(.*)/.exec(src);
-		var alt = '';
+		var alt = this.inputs['alt'].value;
 		var style = {};
 		var w = this.inputs['width'].value;
 		var h = this.inputs['height'].value;
 		if (!/^[1-9]\d*$/.exec(w)) w = '';
 		if (!/^[1-9]\d*$/.exec(h)) h = '';
 		if (gtId && gtId[1]) {
-			alt = gtId[3];
+			if (!alt) {
+				alt = gtId[3];
+			}
 			src = GT.domain+'/file.php?action=thumb&id='+gtId[1]+'&w='+w+'&h='+h;
 		} else if (/^https?:\/\/./.exec(src)) {
 			if (w) style.maxWidth = w+'px';
@@ -137,16 +146,26 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			this.im = this.findElm('IMG','src',tmp);
 		}
 		if (this.im) {
-			var href = this.inputs['href'].value;
-			var p = this.im.parentNode;
-			if (p.nodeName != 'A' && href) {
+			var lnk = {
+				href: this.inputs['href'].value,
+				target: this.inputs['newwindow'].checked ? '_blank' : '',
+				title: alt
+			};
+			if (!lnk.href.length && gtId && gtId[1] && (w || h)) {
+				// If link URL is not '-', add lightbox
+				lnk.href = GT.domain+'/file.php?action=thumb&id='+gtId[1];
+				lnk.target = '_blank';
+				lnk.rel = 'lightbox';
+			}
+			var p = $BK(this.im.parentNode);
+			if (p.nodeName != 'A' && lnk.href != '-') {
 				var tmp = 'javascript:nicTemp();';
 				this.ne.nicCommand("createlink",tmp);
 				p = this.findElm('A','href',tmp);
 			}
 			if (p.nodeName == 'A') {
-				if (href) {
-					p.setAttributes({href: href, target: this.inputs['newwindow'].checked ? '_blank' : ''});
+				if (lnk.href != '-') {
+					p.setAttributes(lnk);
 				} else {
 					p.parentNode.appendChild(this.im);
 					p.removeChild(parentNode);

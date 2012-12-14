@@ -413,7 +413,6 @@ var nicEditor = bkClass.extend({
 	},
 
 	selectCheck : function(e,t) {
-		var found = false;
 		do{
 			if(t.className && t.className.indexOf('nicEdit') != -1) {
 				return false;
