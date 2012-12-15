@@ -65,7 +65,9 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 		if (!elm) return r;
 		if (elm.parentNode.nodeName == 'A') {
 			r.href = elm.parentNode.href;
-			if (r.href.substr(0, GT.domain.length+10) == GT.domain+'/file.php?') {
+			if (r.href.substr(0, GT.domain.length+10) == GT.domain+'/file.php?' ||
+				r.href.substr(0, 9) == 'file.php?') {
+				// Clear lightbox link
 				r.href = '';
 			}
 			if (elm.parentNode.target == '_blank') {
@@ -75,8 +77,9 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			r.href = '-';
 		}
 		r.align = elm.align;
-		if (elm.src.substr(0, GT.domain.length+10) == GT.domain+'/file.php?') {
-			var id, p, m = elm.src.substr(GT.domain.length+10).split('&');
+		var abs = elm.src.substr(0, GT.domain.length+10) == GT.domain+'/file.php?';
+		if (abs || elm.src.substr(0, 9) == 'file.php?') {
+			var id, p, m = elm.src.substr(abs ? GT.domain.length+10 : 9).split('&');
 			for (var i = 0; i < m.length; i++) {
 				p = m[i].split('=', 2);
 				if (p[0] == 'id') {
@@ -130,7 +133,9 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			if (!alt) {
 				alt = gtId[3];
 			}
-			src = GT.domain+'/file.php?action=thumb&id='+gtId[1]+'&w='+w+'&h='+h;
+			// Save relative path to the page text
+			// FIXME This will work only for the same level pages, but OK
+			src = 'file.php?action=thumb&id='+gtId[1]+'&w='+w+'&h='+h;
 		} else if (/^https?:\/\/./.exec(src)) {
 			if (w) style.maxWidth = w+'px';
 			if (h) style.maxHeight = h+'px';
@@ -152,8 +157,8 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 				title: alt
 			};
 			if (!lnk.href.length && gtId && gtId[1] && (w || h)) {
-				// If link URL is not '-', add lightbox
-				lnk.href = GT.domain+'/file.php?action=thumb&id='+gtId[1];
+				// If link URL is not '-', add lightbox (relative path)
+				lnk.href = 'file.php?action=thumb&id='+gtId[1];
 				lnk.target = '_blank';
 				lnk.rel = 'lightbox';
 			}
