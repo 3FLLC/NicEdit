@@ -35,7 +35,7 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 		s = this.inputs['upload'];
 		this.inputs['fileName'] = new bkElement('input').setStyle({width: '150px', height: '20px'}).setAttributes({type: 'button', value: __('Select file')}).appendTo(s);
 		this.inputs['fileName'].addEvent('click', function() { self.inputs['file'].click(); });
-		this.inputs['file'] = new bkElement('input').setStyle({width: '150px', display: 'none'}).setAttributes({type: 'file', size: 5}).appendTo(s);
+		this.inputs['file'] = new bkElement('input').setStyle({ width: '150px', position: 'absolute', left: '0', top: '-100px' }).setAttributes({type: 'file', size: 5}).appendTo(s);
 		this.inputs['file'].addEvent('change', this.onFileChange.closure(this));
 		new bkElement('br').appendTo(s);
 		this.inputs['progress'] = new bkElement('progress')

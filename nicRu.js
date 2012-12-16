@@ -50,6 +50,7 @@ var nicRu = {
 	'Save this content': 'Сохранить',
 
 	'Add Link': 'Вставить ссылку',
+	'URL or Page': 'URL или страница',
 	'Remove Link': 'Убрать ссылку',
 	'Add/Edit Link': 'Ссылка',
 	'Hint': 'Подсказка',
