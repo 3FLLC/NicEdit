@@ -17,8 +17,23 @@ var nicLinkGTButton = nicEditorAdvancedButton.extend({
 			'href': {type: 'text', txt: __('URL or Page'), value: '', style: {width: '150px'}},
 			'title': {type: 'text', txt: __('Hint')},
 			'target': {type: 'select', txt: __('Open In'), options: {'' : __('Current Window'), '_blank': __('New Window')}, style: {width: '100px'}}
-		},this.ln);
+		}, this.parseParams(this.ln || {}));
 		this.hinter = new SimpleAutocomplete(this.inputs['href'], this.gtLoadData.closure(this), null, null, null, false, true);
+	},
+
+	parseParams: function(elm) {
+		var r = { getAttribute: function(n) { return this[n]; } };
+		r.href = elm.href || '';
+		if (r.href.substr(0, GT.domain.length+10) == GT.domain+'/page.php?' ||
+			r.href.substr(0, 9) == 'page.php?') {
+			var m = /[\?&]alias=([^\?&]+)/.exec(r.href);
+			if (m) {
+				r.href = '#'+m[1]+' - '+elm.title;
+			}
+		}
+		r.title = elm.title;
+		r.target = elm.target;
+		return r;
 	},
 
 	gtLoadData: function(hint, value) {
@@ -30,13 +45,17 @@ var nicLinkGTButton = nicEditorAdvancedButton.extend({
 
 	submit: function(e) {
 		var url = this.inputs['href'].value;
+		var title = this.inputs['title'].value;
 		if(url == "http://" || url == "") {
 			alert(__("You must enter a URL to Create a Link"));
 			return false;
 		}
-		var gtId = /^#(\S+)\s+-\s+/.exec(url);
+		var gtId = /^#(\S+)\s+-(\s*(.+))?/.exec(url);
 		if (gtId) {
 			url = 'page.php?alias='+gtId[1];
+			if (!title && gtId[3]) {
+				title = gtId[3];
+			}
 		}
 		this.removePane();
 
@@ -48,7 +67,7 @@ var nicLinkGTButton = nicEditorAdvancedButton.extend({
 		if(this.ln) {
 			this.ln.setAttributes({
 				href: url,
-				title: this.inputs['title'].value,
+				title: title,
 				target: this.inputs['target'].options[this.inputs['target'].selectedIndex].value
 			});
 		}
