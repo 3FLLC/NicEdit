@@ -164,11 +164,11 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			}
 			var p = $BK(this.im.parentNode);
 			if (p.nodeName != 'A' && lnk.href != '-') {
-				var tmp = 'javascript:nicTemp();';
-				this.ne.nicCommand("createlink",tmp);
-				p = this.findElm('A','href',tmp);
+				p = $BK(document.createElement('A'));
+				this.im.parentNode.insertBefore(p, this.im);
+				p.appendChild(this.im);
 			}
-			if (p.nodeName == 'A') {
+			if (p && p.nodeName == 'A') {
 				if (lnk.href != '-') {
 					p.setAttributes(lnk);
 				} else {
