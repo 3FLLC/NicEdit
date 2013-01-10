@@ -63,6 +63,10 @@ var nicLinkGTButton = nicEditorAdvancedButton.extend({
 			var tmp = 'javascript:nicTemp();';
 			this.ne.nicCommand("createlink",tmp);
 			this.ln = this.findElm('A','href',tmp);
+			if(!this.ln) {
+				this.ne.nicCommand("insertHTML",'<a href="'+tmp+'">'+(title||url)+'</a>');
+				this.ln = this.findElm('A','href',tmp);
+			}
 		}
 		if(this.ln) {
 			this.ln.setAttributes({
