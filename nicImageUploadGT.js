@@ -24,7 +24,10 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			'alt': {type: 'text', txt: __('Popup text'), style: {width: '150px'}}
 		}, params);
 
-		this.hinter = new SimpleAutocomplete(this.inputs['src'], this.gtLoadData.closure(this), null, null, null, false, true);
+		this.hinter = new SimpleAutocomplete(this.inputs['src'], this.gtLoadData.closure(this), {
+			emptyText: false,
+			allowHTML: true
+		});
 
 		s = this.inputs['href'].parentNode;
 		new bkElement('br').appendTo(s);
@@ -156,11 +159,15 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 				target: this.inputs['newwindow'].checked ? '_blank' : '',
 				title: alt
 			};
-			if (!lnk.href.length && gtId && gtId[1] && (w || h)) {
-				// If link URL is not '-', add lightbox (relative path)
-				lnk.href = 'file.php?action=thumb&id='+gtId[1];
-				lnk.target = '_blank';
-				lnk.rel = 'lightbox';
+			if (!lnk.href.length) {
+				if (gtId && gtId[1] && (w || h)) {
+					// If link URL is not '-', add lightbox (relative path)
+					lnk.href = 'file.php?action=thumb&id='+gtId[1];
+					lnk.target = '_blank';
+					lnk.rel = 'lightbox';
+				} else {
+					lnk.href = '-';
+				}
 			}
 			var p = $BK(this.im.parentNode);
 			if (p.nodeName != 'A' && lnk.href != '-') {

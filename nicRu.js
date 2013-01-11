@@ -92,7 +92,10 @@ var nicRu = {
 	'Headers': 'Заголовок',
 	'None': 'Нет',
 	'Top': 'Сверху',
-	'Top and Left': 'Сверху и слева'
+	'Top and Left': 'Сверху и слева',
+	'Borders': 'Рамки',
+	'Yes': 'Да',
+	'No': 'Нет'
 };
 
 function __(s) {

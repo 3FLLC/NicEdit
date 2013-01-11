@@ -18,7 +18,10 @@ var nicLinkGTButton = nicEditorAdvancedButton.extend({
 			'title': {type: 'text', txt: __('Hint')},
 			'target': {type: 'select', txt: __('Open In'), options: {'' : __('Current Window'), '_blank': __('New Window')}, style: {width: '100px'}}
 		}, this.parseParams(this.ln || {}));
-		this.hinter = new SimpleAutocomplete(this.inputs['href'], this.gtLoadData.closure(this), null, null, null, false, true);
+		this.hinter = new SimpleAutocomplete(this.inputs['href'], this.gtLoadData.closure(this), {
+			emptyText: false,
+			allowHTML: true
+		});
 	},
 
 	parseParams: function(elm) {

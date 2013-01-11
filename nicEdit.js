@@ -1485,25 +1485,28 @@ var nicTableOptions = {
 /* END CONFIG */
 
 var nicTableButton = nicEditorAdvancedButton.extend({
-	addPane : function() {
+	addPane: function() {
 		this.t = this.ne.selectedInstance.selElm().parentTag('TABLE');
-		var r = 3, c = 3, h = '';
+		var r = 3, c = 3, h = '', b = 'yes';
 		if (this.t && (r = this.t.rows.length)) {
 			c = this.t.rows[0].cells.length;
 			if (this.t.rows[0].cells[c-1].nodeName == 'TH') h += 'top';
 			if (this.t.rows[r-1].cells[0].nodeName == 'TH') h += 'left';
+			if (this.t.className.indexOf('bordered') < 0) b = 'no';
 		}
 		this.addForm({
 			'': {type: 'title', txt: __('Add/Edit Table')},
 			'cols': {type: 'text', txt: __('Columns'), value: c, style: {width: '50px'}},
 			'rows': {type: 'text', txt: __('Rows'), value: r, style: {width: '50px'}},
-			'header': {type: 'select', txt: __('Headers'), value: h, options: {'':__('None'), left:__('Left'), top:__('Top'), topleft:__('Top and Left')}}
+			'header': {type: 'select', txt: __('Headers'), value: h, options: {'':__('None'), left:__('Left'), top:__('Top'), topleft:__('Top and Left')}},
+			'bordered': {type: 'select', txt: __('Borders'), value: b, options: {'no':__('No'), 'yes':__('Yes')}}
 		},this.t);
 	},
 
-	submit : function(e) {
+	submit: function(e) {
 		var r = parseInt(this.inputs['rows'].value);
 		var c = parseInt(this.inputs['cols'].value);
+		var cl = this.inputs['bordered'].value == 'no' ? '' : 'bordered';
 		var i, j;
 		if(!this.t) {
 			var tmp = 'javascript:nicImTemp();', h = '';
@@ -1514,6 +1517,7 @@ var nicTableButton = nicEditorAdvancedButton.extend({
 			this.t = this.findElm('TABLE','title',tmp);
 		}
 		if(this.t) {
+			this.t.className = cl;
 			this.t.removeAttribute('title');
 			for (i = this.t.rows.length-1; i >= r; i--) {
 				this.t.deleteRow(r);
