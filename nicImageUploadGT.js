@@ -159,6 +159,12 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 				target: this.inputs['newwindow'].checked ? '_blank' : '',
 				title: alt
 			};
+			if (lnk.href.substr(0, GT.domain.length) == GT.domain) {
+				var l = lnk.href.substr(GT.domain.length+1).replace(/^\/+/, '');
+				if (/^[a-z_]/.exec(l)) {
+					lnk.href = l;
+				}
+			}
 			if (!lnk.href.length) {
 				if (gtId && gtId[1] && (w || h)) {
 					// If link URL is not '-', add lightbox (relative path)
