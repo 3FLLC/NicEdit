@@ -20,7 +20,7 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			'upload': {type: 'container', txt: __('Or upload')},
 			'href': {type: 'text', txt: __('Hyperlink'), style: {width: '150px'}},
 			'size': {type: 'container', txt: __('Max Size')},
-			'align': {type: 'select', txt: __('Align'), options: {none: __('Inline'), left: __('Left'), right: __('Right')}},
+			'align': {type: 'select', txt: __('Align'), options: {'': __('Inline'), floatleft: __('Left'), floatright: __('Right')}},
 			'alt': {type: 'text', txt: __('Popup text'), style: {width: '150px'}}
 		}, params);
 
@@ -79,7 +79,7 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 		} else {
 			r.href = '-';
 		}
-		r.align = elm.align;
+		r.align = elm.className;
 		var abs = elm.src.substr(0, GT.domain.length+10) == GT.domain+'/file.php?';
 		if (abs || elm.src.substr(0, 9) == 'file.php?') {
 			var id, p, m = elm.src.substr(abs ? GT.domain.length+10 : 9).split('&');
@@ -183,12 +183,8 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 					p.removeChild(parentNode);
 				}
 			}
-			this.im.setStyle(style).setAttributes({
-				src: src,
-				alt: alt,
-				title: alt,
-				align: this.inputs['align'].value
-			});
+			this.im.setStyle(style).setAttributes({ src: src, alt: alt, title: alt })
+				.className = this.inputs['align'].value;
 		}
 	},
 
