@@ -215,7 +215,7 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 			if (res && (res.file || res.duplicate)) {
 				self.onUploaded(res);
 			} else {
-				alert(__('Error uploading file') + (res && res.error ? ': '+res.error : ''));
+				alert(__('Failed to upload image') + (res && (res.exception || res.error) ? ': '+(res.exception || res.error) : ''));
 			}
 		};
 		xhr.onerror = function(e) { alert(__('Error uploading file')+': '+e); };
