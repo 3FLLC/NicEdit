@@ -111,9 +111,9 @@ var nicImageUploadGTButton = nicEditorAdvancedButton.extend({
 		nicEditorAdvancedButton.prototype.removePane.apply(this);
 	},
 
-	gtLoadData: function(hint, value) {
-		POST(GT.domain+'/api.php?action=listimgs&format=json', {value: value}, function(r){
-			try { hint.replaceItems(JSON.parse(r.responseText)); }
+	gtLoadData: function(hint, value, more) {
+		POST(GT.domain+'/api.php?action=listimgs&format=json', {value: value, more: more}, function(r){
+			try { hint.replaceItems(JSON.parse(r.responseText), more > 0); }
 			catch(e) {}
 		});
 	},

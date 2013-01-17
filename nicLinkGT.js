@@ -2,9 +2,9 @@
 
 /* START CONFIG */
 var nicLinkGTOptions = {
-	buttons : {
-		'link' : {name : __('Add Link'), type : 'nicLinkGTButton', tags : ['A']},
-		'unlink' : {name : __('Remove Link'),  command : 'unlink', noActive : true}
+	buttons: {
+		link: {name: __('Add Link'), type: 'nicLinkGTButton', tags: ['A']},
+		unlink: {name: __('Remove Link'), command: 'unlink', noActive: true}
 	}
 };
 /* END CONFIG */
@@ -16,7 +16,7 @@ var nicLinkGTButton = nicEditorAdvancedButton.extend({
 			'': {type: 'title', txt: __('Add/Edit Link')},
 			'href': {type: 'text', txt: __('URL or Page'), value: '', style: {width: '150px'}},
 			'title': {type: 'text', txt: __('Hint')},
-			'target': {type: 'select', txt: __('Open In'), options: {'' : __('Current Window'), '_blank': __('New Window')}, style: {width: '100px'}}
+			'target': {type: 'select', txt: __('Open In'), options: {'': __('Current Window'), '_blank': __('New Window')}, style: {width: '100px'}}
 		}, this.parseParams(this.ln || {}));
 		this.hinter = new SimpleAutocomplete(this.inputs['href'], this.gtLoadData.closure(this), {
 			emptyText: false,
@@ -78,6 +78,14 @@ var nicLinkGTButton = nicEditorAdvancedButton.extend({
 				target: this.inputs['target'].options[this.inputs['target'].selectedIndex].value
 			});
 		}
+	},
+
+	removePane: function() {
+		if (this.hinter) {
+			this.hinter.remove();
+			this.hinter = null;
+		}
+		nicEditorAdvancedButton.prototype.removePane.apply(this);
 	}
 });
 
