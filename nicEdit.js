@@ -618,6 +618,7 @@ var nicEditorInstance = bkClass.extend({
 	},
 
 	nicCommand : function(cmd,args) {
+		this.elm.focus();
 		document.execCommand(cmd,false,args);
 	}
 });
@@ -1581,7 +1582,13 @@ nicEditor = nicEditor.extend({
 		if(top < d) {
 			top = d;
 		}
-		this.floating.setStyle({ top: top+'px', left: e.offsetLeft+'px' });
+		var x = 0;
+		var c = e;
+		while (c && c != document.body) {
+			x += c.offsetLeft;
+			c = c.offsetParent;
+		}
+		this.floating.setStyle({ top: top+'px', left: x+'px' });
 	},
 
 	hide: function() {
