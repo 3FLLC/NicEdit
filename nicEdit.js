@@ -1,10 +1,13 @@
-/* NicEdit - Micro Inline WYSIWYG
- * Copyright 2007-2008 Brian Kirchoff
+/**
+ * NicEdit - Micro Inline WYSIWYG
+ * Copyright 2007-2008 Brian Kirchoff, http://nicedit.com/
+ * Copyright 2012-2015 Vitaliy Filippov, http://yourcmc.ru/wiki/nicEdit
+ * Version: 2015-07-13
  *
  * NicEdit is distributed under the terms of the MIT license
- * For more information visit http://nicedit.com/
  * Do not remove this copyright message
  */
+
 var bkExtend = function(){
 	var args = arguments;
 	if (args.length == 1) args = [this, args[0]];
@@ -68,7 +71,7 @@ var bkElement = bkClass.extend({
 			} while (obj = obj.offsetParent);
 		}
 		var b = (!window.opera) ? parseInt(this.getStyle('border-width') || this.style.border) || 0 : 0;
-		return [curleft+b,curtop+b+this.offsetHeight];
+		return [curleft+b,curtop+b];
 	},
 
 	noSelect : function() {
@@ -207,17 +210,20 @@ var bkLib = {
 		arguments.callee.done = true;
 		for (i = 0;i < bkLib.domLoad.length;i++) bkLib.domLoad[i]();
 	},
-	onDomLoaded : function(fireThis) {
+	onDomLoaded: function(fireThis) {
 		this.domLoad.push(fireThis);
 		if (document.addEventListener) {
 			document.addEventListener("DOMContentLoaded", bkLib.domLoaded, null);
-		} else if(bkLib.isMSIE) {
-			document.write("<style>.nicEdit-main p { margin: 0; }</style><scr"+"ipt id=__ie_onload defer " + ((location.protocol == "https:") ? "src='javascript:void(0)'" : "src=//0") + "><\/scr"+"ipt>");
-			$BK("__ie_onload").onreadystatechange = function() {
-			    if (this.readyState == "complete"){bkLib.domLoaded();}
+		} else if (bkLib.isMSIE) {
+			var e = document.createElement('script');
+			e.setAttribute('defer', 'defer');
+			e.setAttribute('src', location.protocol == "https:" ? "javascript:void(0)" : "//0");
+			(document.head || document.documentElement).appendChild(e);
+			e.onreadystatechange = function() {
+				if (this.readyState == "complete") bkLib.domLoaded();
 			};
 		}
-	    window.onload = bkLib.domLoaded;
+		window.onload = bkLib.domLoaded;
 	}
 };
 
@@ -337,6 +343,9 @@ var nicEditor = bkClass.extend({
 		}
 		nicEditors.editors.push(this);
 		bkLib.addEvent(document.body, 'mousedown', this.selectCheck.closureListener(this));
+		var st = document.createElement('style');
+		st.appendChild(document.createTextNode(".nicEdit-main p { margin: .3em 0; }"));
+		(document.head || document.documentElement).appendChild(st);
 	},
 
 	panelInstance : function(e,o) {
@@ -442,11 +451,21 @@ var nicEditorInstance = bkClass.extend({
 
 		var isTextarea = (e.nodeName.toLowerCase() == "textarea");
 		if(isTextarea || this.options.hasPanel) {
-			var ie7s = (bkLib.isMSIE && !((typeof document.body.style.maxHeight != "undefined") && document.compatMode == "CSS1Compat"))
-			var s = {width: newX+'px', border : '1px solid #ccc', borderTop : 0, overflowY : 'auto', overflowX: 'hidden' };
-			s[(ie7s) ? 'height' : 'maxHeight'] = (this.ne.options.maxHeight) ? this.ne.options.maxHeight+'px' : null;
+			var ie7s = (bkLib.isMSIE && !((typeof document.body.style.maxHeight != "undefined") && document.compatMode == "CSS1Compat"));
+			var s = {
+				width: newX+'px',
+				border: '1px solid #ccc',
+				boxSizing: 'border-box',
+				overflowY: 'auto',
+				overflowX: 'hidden'
+			};
+			s[ie7s ? 'height' : 'maxHeight'] = isTextarea ? newY+'px' : (this.ne.options.maxHeight ? this.ne.options.maxHeight+'px' : null);
 			this.editorContain = new bkElement('DIV').setStyle(s).appendBefore(e);
-			var editorElm = new bkElement('DIV').setStyle({width : (newX-8)+'px', margin: '4px', minHeight : newY+'px'}).addClass('main').appendTo(this.editorContain);
+			var editorElm = new bkElement('DIV').setStyle({
+				width: (newX-10)+'px',
+				padding: '4px',
+				minHeight: (newY-10)+'px'
+			}).addClass('main').appendTo(this.editorContain);
 
 			e.setStyle({display : 'none'});
 
@@ -921,7 +940,7 @@ var nicEditorPane = bkClass.extend({
 		this.elm = elm;
 		this.pos = elm.pos();
 
-		this.contain = new bkElement('div').setStyle({zIndex: '999', overflow: 'hidden', position: 'absolute', left: this.pos[0]+'px', top : this.pos[1]+'px'})
+		this.contain = new bkElement('div').setStyle({zIndex: '999', overflow: 'hidden', position: 'absolute', left: this.pos[0]+'px', top : (this.pos[1]+elm.offsetHeight)+'px'})
 		this.pane = new bkElement('div').setStyle({fontSize: '12px', border: '1px solid #ccc', overflow: 'hidden', padding: '4px', textAlign: 'left', backgroundColor : '#ffffc9'}).addClass('pane').setStyle(options).appendTo(this.contain);
 
 		if(openButton && !openButton.options.noClose) {
@@ -1000,9 +1019,9 @@ var nicEditorAdvancedButton = nicEditorButton.extend({
 				'.niceabf td { padding: 2px 5px 2px 0; }\n'+
 				'.niceabf td.h { vertical-align: top; padding-top: 4px; white-space: nowrap; }\n'+
 				'.niceabf h2 { font-size: 14px; font-weight: bold; padding: 0; margin: 0; }\n'+
-				'.niceabf input, .niceabf select { vertical-align: middle; font-size: 13px; border: 1px solid #ccc; }\n'+
+				'.niceabf input, .niceabf select { text-transform: none; font-weight: normal; height: auto; padding: 1px; vertical-align: middle; font-size: 13px; border: 1px solid #ccc; }\n'+
 				'.niceabf textarea { border: 1px solid #ccc; }\n'+
-				'.niceabf input.button { background-color: #efefef; margin: 3px 0; }\n'
+				'.niceabf input.button { background-color: #efefef; color: black; margin: 3px 0; }\n'
 			));
 			document.getElementsByTagName('head')[0].appendChild(document._nicCss);
 		}
@@ -1564,7 +1583,7 @@ nicEditors.registerPlugin(nicPlugin,nicTableOptions);
 
 nicEditor = nicEditor.extend({
 	floatingPanel: function() {
-		this.floating = new bkElement('DIV').setStyle({display: 'inline-block', position: 'absolute', top: '-1000px', zIndex: 100}).appendTo(document.body);
+		this.floating = new bkElement('DIV').setStyle({display: 'inline-block', position: 'absolute', left: '-1000px', top: '-1000px', zIndex: 100}).appendTo(document.body);
 		this.addEvent('focus', this.reposition.closure(this)).addEvent('blur', this.hide.closure(this));
 		bkLib.addEvent(window, 'scroll', this.reposition.closure(this));
 		this.setPanel(this.floating);
@@ -1572,28 +1591,16 @@ nicEditor = nicEditor.extend({
 
 	reposition: function() {
 		var e = this.selectedInstance;
-		if (!e || !(e = e.e)) return;
+		if (!e || !(e = e.elm)) return;
 		var h = this.floating.offsetHeight;
-		if (this.oldMargin === undefined) this.oldMargin = e.style.marginTop||'';
-		e.style.marginTop = h+'px';
-		var top = e.offsetTop-h;
+		var p = e.pos();
 		var d = document;
-		d = d.body.scrollTop || d.documentElement.scrollTop;
-		if(top < d) {
-			top = d;
-		}
-		var x = 0;
-		var c = e;
-		while (c && c != document.body) {
-			x += c.offsetLeft;
-			c = c.offsetParent;
-		}
-		this.floating.setStyle({ top: top+'px', left: x+'px' });
+		d = window.pageYOffset || d.body.scrollTop || d.documentElement.scrollTop;
+		var top = p[1]-h;
+		this.floating.setStyle({ top: (top < d ? d : top)+'px', left: p[0]+'px' });
 	},
 
 	hide: function() {
-		this.floating.setStyle({ top: '-1000px' });
-		if (this.selectedInstance) this.selectedInstance.e.style.marginTop = this.oldMargin;
-		this.oldMargin = null;
+		this.floating.setStyle({ top: '-1000px', left: '-1000px' });
 	}
 });
