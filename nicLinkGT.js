@@ -1,4 +1,4 @@
-/** nicLink */
+/** nicLinkGT -- example link insertion integrated with wiki-like site CMS */
 
 /* START CONFIG */
 var nicLinkGTOptions = {
