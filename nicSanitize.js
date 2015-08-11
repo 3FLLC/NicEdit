@@ -28,3 +28,4 @@ var nicSanitize = bkClass.extend({
 });
 
 nicEditors.registerPlugin(nicSanitize);
+
