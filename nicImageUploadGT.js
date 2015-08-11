@@ -1,4 +1,4 @@
-/** nicImageUploadGT (Image + Upload + Lightbox support) */
+/** nicImageUploadGT (Image + Upload + Lightbox support) -- example image uploads integrated with wiki-like site CMS */
 
 /* START CONFIG */
 var nicImageUploadGTOptions = {

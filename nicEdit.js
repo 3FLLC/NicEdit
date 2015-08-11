@@ -2,7 +2,7 @@
  * NicEdit - Micro Inline WYSIWYG
  * Copyright 2007-2008 Brian Kirchoff, http://nicedit.com/
  * Copyright 2012-2015 Vitaliy Filippov, http://yourcmc.ru/wiki/nicEdit
- * Version: 2015-07-13
+ * Version: 2015-08-12
  *
  * NicEdit is distributed under the terms of the MIT license
  * Do not remove this copyright message
